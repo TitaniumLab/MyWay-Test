@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using Zenject;
 
 namespace MyWay
 {
@@ -12,6 +13,7 @@ namespace MyWay
         //[SerializeField] private string _messageUrl; // https://drive.google.com/uc?export=download&id=1q5QrVd4V8BsbJtHfWitrXOEejSM-xm3n
         private List<UnityWebRequest> _initialRequests = new List<UnityWebRequest>();
         public event Action OnInitialRequestsCompletion;
+
 
         //private async void Awake()
         //{
