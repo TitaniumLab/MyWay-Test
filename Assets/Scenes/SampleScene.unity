@@ -454,8 +454,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6e3c04b1f0a8b40a73159507369a93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _settingsUrl: https://drive.google.com/uc?export=download&id=10PxQzHTwlNV293_gb19ROboctSFAuiJo
-  _messageUrl: 
 --- !u!1 &1349351632
 GameObject:
   m_ObjectHideFlags: 0
