@@ -21,6 +21,7 @@ namespace MyWay
 
         public async Task StartInitialRequestsAsync()
         {
+            var reqNum = _initialRequests.Count;
             _initialRequests.ForEach(req =>
             {
                 req.SendWebRequest();
@@ -30,6 +31,8 @@ namespace MyWay
             {
                 await Task.Yield();
             }
+
+            Debug.Log($"{reqNum} initial requests done successful");
             OnInitialRequestsCompletion?.Invoke();
         }
 
@@ -66,7 +69,13 @@ namespace MyWay
                 {
                     await Task.Yield();
                 }
-                return ((DownloadHandlerAssetBundle)webRequest.downloadHandler).assetBundle;
+
+                _initialRequests.Remove(webRequest);
+                if (CheckRequestSuccessful(webRequest))
+                {
+                    return ((DownloadHandlerAssetBundle)webRequest.downloadHandler).assetBundle;
+                }
+                return default;
             }
         }
 

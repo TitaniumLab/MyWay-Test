@@ -16,6 +16,7 @@ namespace MyWay
         private DataLoader _loader;
         private ICounter _counter;
 
+
         [Inject]
         private void Construct(DataLoader loader)
         {
