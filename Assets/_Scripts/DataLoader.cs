@@ -8,30 +8,20 @@ namespace MyWay
 {
     public class DataLoader : MonoBehaviour
     {
-        //[SerializeField] private string _settingsUrl; // https://drive.google.com/uc?export=download&id=10PxQzHTwlNV293_gb19ROboctSFAuiJo
-        //[SerializeField] private string _messageUrl; // https://drive.google.com/uc?export=download&id=1q5QrVd4V8BsbJtHfWitrXOEejSM-xm3n
         private List<UnityWebRequest> _initialRequests = new List<UnityWebRequest>();
         public event Action OnInitialRequestsCompletion;
-
-        //private async void Awake()
-        //{
-        //    //var setHandler = GetInitialRequestSerializable<Settings>(_settingsUrl);
-        //    //var mesHandler = GetInitialRequestSerializable<MessageData>(_messageUrl);
-        //    //List<Task> tasks = new List<Task>();
-        //    //tasks.Add(setHandler);
-        //    //tasks.Add(mesHandler);
-        //    //await Task.WhenAll(tasks);
-        //}
 
 
         private async void Start()
         {
-            await StartInitialRequests();
+            await Awaitable.NextFrameAsync();
+            await StartInitialRequestsAsync();
         }
 
 
-        public async Task StartInitialRequests()
+        public async Task StartInitialRequestsAsync()
         {
+            var reqNum = _initialRequests.Count;
             _initialRequests.ForEach(req =>
             {
                 req.SendWebRequest();
@@ -41,11 +31,13 @@ namespace MyWay
             {
                 await Task.Yield();
             }
+
+            Debug.Log($"{reqNum} initial requests done successful");
             OnInitialRequestsCompletion?.Invoke();
         }
 
 
-        public async Task<TSerializableResultType> GetInitialRequestSerializable<TSerializableResultType>(string url)
+        public async Task<TSerializableResultType> GetInitialRequestSerializableAsync<TSerializableResultType>(string url)
         {
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
@@ -60,13 +52,14 @@ namespace MyWay
                 {
                     var data = JsonUtility.FromJson<TSerializableResultType>(webRequest.downloadHandler.text);
                     _initialRequests.Remove(webRequest);
+                    return data;
                 }
                 return default;
             }
         }
 
 
-        public async Task<AssetBundle> GetInitialRequestAssetBundle(string url)
+        public async Task<AssetBundle> GetInitialRequestAssetBundleAsync(string url)
         {
             using (UnityWebRequest webRequest = UnityWebRequestAssetBundle.GetAssetBundle(url))
             {
@@ -76,12 +69,18 @@ namespace MyWay
                 {
                     await Task.Yield();
                 }
-                return ((DownloadHandlerAssetBundle)webRequest.downloadHandler).assetBundle;
+
+                _initialRequests.Remove(webRequest);
+                if (CheckRequestSuccessful(webRequest))
+                {
+                    return ((DownloadHandlerAssetBundle)webRequest.downloadHandler).assetBundle;
+                }
+                return default;
             }
         }
 
 
-        public async Task<TSerializableResultType> GetRequestSerializable<TSerializableResultType>(string url)
+        public async Task<TSerializableResultType> GetRequestSerializableAsync<TSerializableResultType>(string url)
         {
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
@@ -97,7 +96,7 @@ namespace MyWay
         }
 
 
-        public async Task<AssetBundle> GetRequestAssetBundle(string url)
+        public async Task<AssetBundle> GetRequestAssetBundleAsync(string url)
         {
             using (UnityWebRequest webRequest = UnityWebRequestAssetBundle.GetAssetBundle(url))
             {
